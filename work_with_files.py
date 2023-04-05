@@ -1,3 +1,10 @@
+import requests
+from urllib.parse import urlparse
+import os
+
+
+
+
 def safe_images(url, path, params=None):
     filename = path
     with open(filename, 'wb') as file:
