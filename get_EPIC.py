@@ -88,7 +88,6 @@ def main():
             params=params
         ).json()
         random_dates = random.sample(dates_response, args.random_count)
-        print(random_dates)
         for random_date in random_dates:
             get_by_date(random_date['date'])
 
