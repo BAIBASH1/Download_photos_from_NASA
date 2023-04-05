@@ -21,7 +21,10 @@ def get_APOD(params, day=''):
     if day:
         response = [response]
     for dict_in_list in response:
-        url = dict_in_list['hdurl']
+        try:
+            url = dict_in_list['hdurl']
+        except KeyError:
+            url = dict_in_list['url']
         filetype = define_filetype(url)
         date = dict_in_list['date']
         safe_images(
