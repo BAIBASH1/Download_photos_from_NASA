@@ -2,10 +2,11 @@ import requests
 import os
 from urllib.parse import urlparse
 import datetime
-
+from dotenv import load_dotenv
 
 ID = '5eb87d4affd86e000604b38b'
-API = 'nDugl8g8k8AQ4l6ICrqWriURjQuPFGJgJFpzYZpW'
+load_dotenv()
+API = os.environ['API']
 
 
 def safe_images(url, path, params=None):
