@@ -53,4 +53,5 @@ EPIC - [Earth Polychromatic Imaging Camera](https://epic.gsfc.nasa.gov/) \
 ```TG_TOKEN = 'Ваш токен'```\
 ```API = 'Ваш токен от NASA' ```
 
+
 6. Осталось только запусткать программы.
