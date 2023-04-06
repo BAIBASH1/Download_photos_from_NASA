@@ -41,7 +41,6 @@ def main():
     parser.add_argument("--day", help="Укажите день, за который нужно получить фото, в формате YYYY-MM-DD")
     parser.add_argument("--days", help="Укажите промежуток дней, за которые хотите получить фотографии, в формате YYYY-MM-DD-YYYY-MM-DD")
     args = parser.parse_args()
-
     if args.count:
         params = {
             'count': args.count,
