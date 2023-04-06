@@ -13,13 +13,15 @@ TG_TOKEN = os.environ['TG_TOKEN']
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Бот присылает фотографии из указанной директории,'
+        description='Бот присылает фотографии из указанной директории'
+                    '(дефолтно равен Photos_of_the_day),'
                     ' с указанным периодом (дефолтно период равен 4ем часам),'
                     ' если фотографии закончатся,'
                     ' начнет случайном порядке присылась фотографии'
     )
     parser.add_argument(
         '--directory',
+        default='Photos_of_the_day',
         help='Укажите путь к папке из которой'
              ' необходимо присылать фотографии')
     parser.add_argument('--period',
