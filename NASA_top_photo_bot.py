@@ -7,11 +7,10 @@ from pytimeparse import parse
 from dotenv import load_dotenv
 
 
-load_dotenv()
-TG_TOKEN = os.environ['TG_TOKEN']
-
-
 def main():
+    load_dotenv()
+    tg_token = os.environ['TG_TOKEN']
+    tg_chat_id = os.environ['TG_CHAT_ID']
     parser = argparse.ArgumentParser(
         description='Бот присылает фотографии из указанной директории'
                     '(дефолтно равен Photos_of_the_day),'
@@ -34,17 +33,16 @@ def main():
                              'Дефолтно период равен 4-ем часам'
                         )
     args = parser.parse_args()
-    bot = telegram.Bot(token=TG_TOKEN)
-    paths = []
-    for entry in os.scandir(args.directory):
-        paths.append(entry.path)
+    bot = telegram.Bot(token=tg_token)
+    paths = [entry for entry in os.scandir(args.directory)]
     period = parse(args.period)
     while True:
         for path in paths:
-            bot.send_document(
-                chat_id='@nasa_pictires',
-                document=open(path, 'rb')
-            )
+            with open(path, 'rb') as document:
+                bot.send_document(
+                    chat_id=tg_chat_id,
+                    document=document
+                    )
             time.sleep(period)
         random.shuffle(paths)
 

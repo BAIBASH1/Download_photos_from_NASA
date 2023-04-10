@@ -5,55 +5,60 @@ import datetime
 import argparse
 import random
 from work_with_files import safe_images
-from work_with_files import create_folder
+from pathlib import Path
 
 
-load_dotenv()
-API = os.environ['API']
-
-
-def earth_photo(num_date):
-    str_date = requests.get(
+def get_earth_photo_url(num_date):
+    response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
-    ).json()[num_date]['date']
+    )
+    response.raise_for_status()
+    str_date = response.json()[num_date]['date']
     date = datetime.date.fromisoformat(str_date)
-    image_name = requests.get(
+    response = requests.get(
         f'https://api.nasa.gov/EPIC/api/natural/date/{date}',
         params=params
-    ).json()[0]['image']
+    )
+    response.raise_for_status()
+    image_name = response.json()[0]['image']
     url_earth_photo = f'https://api.nasa.gov/EPIC/archive/natural/' \
                       f'{date.strftime("%Y/%m/%d")}/png/{image_name}.png'
-    create_folder('Earth_photos')
-    safe_images(
-        url_earth_photo,
-        f"Earth_photos/earth_photo_{date}.png",
-        params=params)
-
+    return url_earth_photo, date
 
 def get_by_date(date):
     dates_response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
-    ).json()
-    n = 0
+    )
+    dates_response.raise_for_status()
     if "2015-06-12" < date:
-        for element in dates_response:
+        for num_date, element in enumerate(dates_response.json()):
             if element['date'] == date:
-                earth_photo(n)
+                return num_date
                 break
-            n += 1
         else:
             print("За эту дату нет фотографий")
     else:
         print("Слишком поздняя дата, попробуйте дату раньше")
 
 
+def get_random_date(counts):
+    dates_response = requests.get(
+        'https://api.nasa.gov/EPIC/api/natural/all',
+        params=params
+    )
+    dates_response.raise_for_status()
+    random_dates = random.sample(dates_response.json(), counts)
+    return random_dates
+
 
 def main():
+    load_dotenv()
+    nasa_api = os.environ['NASA_API']
     global params
     params = {
-        'api_key': API
+        'api_key': nasa_api
     }
     parser = argparse.ArgumentParser(
         description='Программа скачивает фотографии земли в файл '
@@ -79,17 +84,29 @@ def main():
     args = parser.parse_args()
     if args.count:
         for num in range(args.count):
-            earth_photo(num)
+            url_earth_photo, date = get_earth_photo_url(num)
+            os.makedirs('Earth_photos', exist_ok=True)
+            safe_images(
+                url_earth_photo,
+                Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
+                params=params)
     if args.date:
-        get_by_date(args.date)
+        num_date = get_by_date(args.date)
+        url_earth_photo, date = get_earth_photo_url(num_date)
+        os.makedirs('Earth_photos', exist_ok=True)
+        safe_images(
+            url_earth_photo,
+            Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
+            params=params)
     if args.random_count:
-        dates_response = requests.get(
-            'https://api.nasa.gov/EPIC/api/natural/all',
-            params=params
-        ).json()
-        random_dates = random.sample(dates_response, args.random_count)
-        for random_date in random_dates:
-            get_by_date(random_date['date'])
+        for random_date in get_random_date(args.random_count):
+            num_date = get_by_date(random_date['date'])
+            url_earth_photo, date = get_earth_photo_url(num_date)
+            os.makedirs('Earth_photos', exist_ok=True)
+            safe_images(
+                url_earth_photo,
+                Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
+                params=params)
 
 
 if __name__ == '__main__':

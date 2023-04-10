@@ -4,11 +4,7 @@ import requests
 from dotenv import load_dotenv
 from work_with_files import safe_images
 from work_with_files import define_filetype
-from work_with_files import create_folder
-
-
-load_dotenv()
-API = os.environ['API']
+from pathlib import Path
 
 
 def get_APOD(params, day=''):
@@ -16,11 +12,12 @@ def get_APOD(params, day=''):
     response = requests.get(
         url_day_photo,
         params=params
-    ).json()
-    create_folder('Photos_of_the_day')
+    )
+    response.raise_for_status()
+    os.makedirs('Photos_of_the_day', exist_ok=True)
     if day:
-        response = [response]
-    for dict_in_list in response:
+        response = [response.json()]
+    for dict_in_list in response.json():
         try:
             url = dict_in_list['hdurl']
         except KeyError:
@@ -29,10 +26,13 @@ def get_APOD(params, day=''):
         date = dict_in_list['date']
         safe_images(
             url,
-            f"Photos_of_the_day\\image_for_{date}{filetype}"
+            Path.cwd() / 'Photos_of_the_day' / f'image_for_{date}{filetype}'
         )
 
+
 def main():
+    load_dotenv()
+    nasa_api = os.environ['NASA_API']
     parser = argparse.ArgumentParser(
         description='Программа скачивает фотографии дня в файл '
                     '"Photos_of_the_day" в рабочей директории, (если нет создает)'
@@ -44,20 +44,20 @@ def main():
     if args.count:
         params = {
             'count': args.count,
-            'api_key': API
+            'api_key': nasa_api
         }
         get_APOD(params)
     if args.day:
         params = {
             'date': args.day,
-            'api_key': API
+            'api_key': nasa_api
         }
         get_APOD(params, args.day)
     if args.days:
         params = {
             'start_date': args.days[:10],
             'end_date': args.days[11:],
-            'api_key': API
+            'api_key': nasa_api
         }
         get_APOD(params)
 
