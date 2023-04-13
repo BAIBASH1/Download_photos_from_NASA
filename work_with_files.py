@@ -13,5 +13,5 @@ def safe_images(url, path, params=None):
 
 def define_filetype(url):
     url_path = urlparse(url).path
-    fyletype = os.path.splitext(url_path)[1]
-    return fyletype
+    filetype = os.path.splitext(url_path)[1]
+    return filetype
