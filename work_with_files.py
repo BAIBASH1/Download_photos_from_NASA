@@ -7,8 +7,10 @@ import os
 
 def safe_images(url, path, params=None):
     filename = path
+    response = requests.get(url, params=params)
+    response.raise_for_status()
     with open(filename, 'wb') as file:
-        file.write(requests.get(url, params=params).content)
+        file.write(response.content)
 
 
 def define_filetype(url):
