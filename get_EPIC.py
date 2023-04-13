@@ -8,7 +8,7 @@ from work_with_files import safe_images
 from pathlib import Path
 
 
-def get_earth_photo_url(num_date):
+def get_earth_photo_url(num_date, params):
     response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
@@ -26,7 +26,7 @@ def get_earth_photo_url(num_date):
                       f'{date.strftime("%Y/%m/%d")}/png/{image_name}.png'
     return url_earth_photo, date
 
-def get_by_date(date):
+def get_by_date(date, params):
     dates_response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
@@ -43,7 +43,7 @@ def get_by_date(date):
         print("Слишком поздняя дата, попробуйте дату раньше")
 
 
-def get_random_date(counts):
+def get_random_date(counts, params):
     dates_response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
@@ -53,7 +53,7 @@ def get_random_date(counts):
     return random_dates
 
 
-def find_and_safe_images(num):
+def find_and_safe_images(num, params):
     url_earth_photo, date = get_earth_photo_url(num)
     os.makedirs('Earth_photos', exist_ok=True)
     safe_images(
@@ -65,7 +65,6 @@ def find_and_safe_images(num):
 def main():
     load_dotenv()
     nasa_api = os.environ['NASA_API']
-    global params
     params = {
         'api_key': nasa_api
     }
@@ -93,14 +92,14 @@ def main():
     args = parser.parse_args()
     if args.count:
         for num in range(args.count):
-            find_and_safe_images(num)
+            find_and_safe_images(num, params)
     if args.date:
-        num_date = get_by_date(args.date)
-        find_and_safe_images(num_date)
+        num_date = get_by_date(args.date, params)
+        find_and_safe_images(num_date, params)
     if args.random_count:
-        for random_date in get_random_date(args.random_count):
-            num_date = get_by_date(random_date['date'])
-            find_and_safe_images(num_date)
+        for random_date in get_random_date(args.random_count, params):
+            num_date = get_by_date(random_date['date'], params)
+            find_and_safe_images(num_date, params)
 
 
 if __name__ == '__main__':
