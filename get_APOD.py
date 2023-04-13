@@ -7,7 +7,7 @@ from work_with_files import define_filetype
 from pathlib import Path
 
 
-def get_APOD(params, day=''):
+def get_APOD(params, day=None):
     url_day_photo = 'https://api.nasa.gov/planetary/apod'
     response = requests.get(
         url_day_photo,
