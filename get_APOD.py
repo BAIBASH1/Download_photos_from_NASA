@@ -15,9 +15,10 @@ def get_APOD(params, day=''):
     )
     response.raise_for_status()
     os.makedirs('Photos_of_the_day', exist_ok=True)
+    json_response = response.json()
     if day:
-        response = [response.json()]
-    for dict_in_list in response.json():
+        json_response = [json_response]
+    for dict_in_list in json_response:
         try:
             url = dict_in_list['hdurl']
         except KeyError:
