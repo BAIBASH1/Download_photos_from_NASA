@@ -53,6 +53,15 @@ def get_random_date(counts):
     return random_dates
 
 
+def find_and_safe_images(num):
+    url_earth_photo, date = get_earth_photo_url(num)
+    os.makedirs('Earth_photos', exist_ok=True)
+    safe_images(
+        url_earth_photo,
+        Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
+        params=params)
+
+
 def main():
     load_dotenv()
     nasa_api = os.environ['NASA_API']
@@ -84,29 +93,14 @@ def main():
     args = parser.parse_args()
     if args.count:
         for num in range(args.count):
-            url_earth_photo, date = get_earth_photo_url(num)
-            os.makedirs('Earth_photos', exist_ok=True)
-            safe_images(
-                url_earth_photo,
-                Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
-                params=params)
+            find_and_safe_images(num)
     if args.date:
         num_date = get_by_date(args.date)
-        url_earth_photo, date = get_earth_photo_url(num_date)
-        os.makedirs('Earth_photos', exist_ok=True)
-        safe_images(
-            url_earth_photo,
-            Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
-            params=params)
+        find_and_safe_images(num_date)
     if args.random_count:
         for random_date in get_random_date(args.random_count):
             num_date = get_by_date(random_date['date'])
-            url_earth_photo, date = get_earth_photo_url(num_date)
-            os.makedirs('Earth_photos', exist_ok=True)
-            safe_images(
-                url_earth_photo,
-                Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
-                params=params)
+            find_and_safe_images(num_date)
 
 
 if __name__ == '__main__':
