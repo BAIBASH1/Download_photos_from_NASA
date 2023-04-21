@@ -3,10 +3,7 @@ from urllib.parse import urlparse
 import os
 
 
-
-
-def safe_images(url, path, params=None):
-    filename = path
+def save_images(url, filename, params=None):
     response = requests.get(url, params=params)
     response.raise_for_status()
     with open(filename, 'wb') as file:
