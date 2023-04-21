@@ -1,7 +1,7 @@
 import argparse
 import requests
 import os
-from work_with_files import safe_images
+from work_with_files import save_images
 from work_with_files import define_filetype
 from pathlib import Path
 
@@ -26,7 +26,6 @@ def get_urls_spacex_images_by_launch_num(launch_num):
     return image_urls, date
 
 
-
 def get_last_launch_id_with_images():
     launch_num = -1
     while True:
@@ -46,20 +45,21 @@ def get_last_launch_id_with_images():
 def safe_all_images(image_urls, date, launch_id):
     os.makedirs('Images_spacex', exist_ok=True)
     for num_image_url, image_url in enumerate(image_urls):
-        safe_images(
+        save_images(
             image_url,
-            Path.cwd() / 'Images_spacex' / f'spacex_{launch_id}_{date[0:10]}_{num_image_url}'
-                                           f'{define_filetype(image_url)}'
+            Path.cwd() / 'Images_spacex' /
+            f'spacex_{launch_id}_{date[0:10]}_'
+            f'{num_image_url}{define_filetype(image_url)}'
         )
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Программа загружает кадры запуска Spacex"
-                    " в файл Images_spacex (если нет создает)"
+                    " в файл Images_spacex (если нет, создает)"
                     "по ID этого запуска, указывается следующим"
                     " образом: --id ID. Если она не будет указана"
-                    " загрузятся фотографии поледнего запуска, "
+                    " загрузятся фотографии поcледнего запуска, "
                     "для которой есть фотографии, "
     )
     parser.add_argument("--id", help="укажите ID запуска")
@@ -71,6 +71,7 @@ def main():
         last_id, launch_num = get_last_launch_id_with_images()
         image_urls, date = get_urls_spacex_images_by_launch_num(launch_num)
         safe_all_images(image_urls, date, last_id)
+
 
 if __name__ == "__main__":
     main()
