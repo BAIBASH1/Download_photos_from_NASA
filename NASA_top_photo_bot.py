@@ -7,6 +7,14 @@ from pytimeparse import parse
 from dotenv import load_dotenv
 
 
+def open_and_send_image(path, bot, tg_chat_id):
+    with open(path, 'rb') as document:
+        bot.send_document(
+            chat_id=tg_chat_id,
+            document=document
+        )
+
+
 def main():
     load_dotenv()
     tg_token = os.environ['TG_TOKEN']
@@ -16,7 +24,7 @@ def main():
                     '(дефолтно равен Photos_of_the_day),'
                     ' с указанным периодом (дефолтно период равен 4ем часам),'
                     ' если фотографии закончатся,'
-                    ' начнет случайном порядке присылась фотографии'
+                    ' начнет случайном порядке присылать фотографии'
     )
     parser.add_argument(
         '--directory',
@@ -38,11 +46,18 @@ def main():
     period = parse(args.period)
     while True:
         for path in paths:
-            with open(path, 'rb') as document:
-                bot.send_document(
-                    chat_id=tg_chat_id,
-                    document=document
-                    )
+            try:
+                open_and_send_image(path, bot, tg_chat_id)
+            except telegram.error.NetworkError:
+                try:
+                    open_and_send_image(path, bot, tg_chat_id)
+                except telegram.error.NetworkError:
+                    while True:
+                        try:
+                            open_and_send_image(path, bot, tg_chat_id)
+                            break
+                        except telegram.error.NetworkError:
+                            time.sleep(10)
             time.sleep(period)
         random.shuffle(paths)
 
