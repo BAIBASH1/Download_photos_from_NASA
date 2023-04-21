@@ -4,7 +4,7 @@ import requests
 import datetime
 import argparse
 import random
-from work_with_files import safe_images
+from work_with_files import save_images
 from pathlib import Path
 
 
@@ -25,6 +25,7 @@ def get_earth_photo_url(num_date, params):
     url_earth_photo = f'https://api.nasa.gov/EPIC/archive/natural/' \
                       f'{date.strftime("%Y/%m/%d")}/png/{image_name}.png'
     return url_earth_photo, date
+
 
 def get_by_date(date, params):
     dates_response = requests.get(
@@ -53,10 +54,10 @@ def get_random_date(counts, params):
     return random_dates
 
 
-def find_and_safe_images(num, params):
-    url_earth_photo, date = get_earth_photo_url(num)
+def find_and_save_images(num, params):
+    url_earth_photo, date = get_earth_photo_url(num, params)
     os.makedirs('Earth_photos', exist_ok=True)
-    safe_images(
+    save_images(
         url_earth_photo,
         Path.cwd() / 'Earth_photos' / f'earth_photo_{date}.png',
         params=params)
@@ -92,14 +93,14 @@ def main():
     args = parser.parse_args()
     if args.count:
         for num in range(args.count):
-            find_and_safe_images(num, params)
+            find_and_save_images(num, params)
     if args.date:
         num_date = get_by_date(args.date, params)
-        find_and_safe_images(num_date, params)
+        find_and_save_images(num_date, params)
     if args.random_count:
         for random_date in get_random_date(args.random_count, params):
             num_date = get_by_date(random_date['date'], params)
-            find_and_safe_images(num_date, params)
+            find_and_save_images(num_date, params)
 
 
 if __name__ == '__main__':
