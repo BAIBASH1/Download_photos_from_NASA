@@ -6,10 +6,18 @@ from work_with_files import define_filetype
 from pathlib import Path
 
 
-def get_urls_spacex_images_by_id(launch_id):
-    response = requests.get("https://api.spacexdata.com/v5/launches")
+def get_response():
+    response = requests.get(
+        "https://api.spacexdata.com/v5/launches"
+    )
     response.raise_for_status()
-    for launch_inf in response.json():
+    response_dictionaries_in_list = response.json()
+    return response_dictionaries_in_list
+
+
+def get_urls_spacex_images_by_id(launch_id):
+    response = get_response()
+    for launch_inf in response:
         if launch_inf['id'] == launch_id:
             image_urls = launch_inf["links"]["flickr"]["original"]
             date = launch_inf["date_local"]
@@ -18,22 +26,17 @@ def get_urls_spacex_images_by_id(launch_id):
 
 
 def get_urls_spacex_images_by_launch_num(launch_num):
-    response = requests.get("https://api.spacexdata.com/v5/launches")
-    response.raise_for_status()
-    json_response = response.json()
-    image_urls = json_response[launch_num]["links"]["flickr"]["original"]
-    date = json_response[launch_num]["date_local"]
+    response_dictionaries_in_list = get_response()
+    image_urls = response_dictionaries_in_list[launch_num]["links"]["flickr"]["original"]
+    date = response_dictionaries_in_list[launch_num]["date_local"]
     return image_urls, date
 
 
 def get_last_launch_id_with_images():
     launch_num = -1
+    response_dictionaries_in_list = get_response()
     while True:
-        response = requests.get(
-            "https://api.spacexdata.com/v5/launches"
-        )
-        response.raise_for_status()
-        response_dictionary = response.json()[launch_num]
+        response_dictionary = response_dictionaries_in_list[launch_num]
         if not response_dictionary["links"]["flickr"]["original"]:
             launch_num -= 1
         else:
@@ -42,7 +45,7 @@ def get_last_launch_id_with_images():
     return last_id, launch_num
 
 
-def safe_all_images(image_urls, date, launch_id):
+def save_all_images(image_urls, date, launch_id):
     os.makedirs('Images_spacex', exist_ok=True)
     for num_image_url, image_url in enumerate(image_urls):
         save_images(
@@ -66,11 +69,11 @@ def main():
     args = parser.parse_args()
     if args.id:
         image_urls, date = get_urls_spacex_images_by_id(args.id)
-        safe_all_images(image_urls, date, args.id)
+        save_all_images(image_urls, date, args.id)
     else:
         last_id, launch_num = get_last_launch_id_with_images()
         image_urls, date = get_urls_spacex_images_by_launch_num(launch_num)
-        safe_all_images(image_urls, date, last_id)
+        save_all_images(image_urls, date, last_id)
 
 
 if __name__ == "__main__":

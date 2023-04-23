@@ -15,6 +15,18 @@ def open_and_send_image(path, bot, tg_chat_id):
         )
 
 
+def try_send(path, bot, tg_chat_id):
+    try:
+        open_and_send_image(path, bot, tg_chat_id)
+    except telegram.error.NetworkError:
+        while True:
+            try:
+                open_and_send_image(path, bot, tg_chat_id)
+                return
+            except telegram.error.NetworkError:
+                time.sleep(10)
+
+
 def main():
     load_dotenv()
     tg_token = os.environ['TG_TOKEN']
@@ -46,18 +58,7 @@ def main():
     period = parse(args.period)
     while True:
         for path in paths:
-            try:
-                open_and_send_image(path, bot, tg_chat_id)
-            except telegram.error.NetworkError:
-                try:
-                    open_and_send_image(path, bot, tg_chat_id)
-                except telegram.error.NetworkError:
-                    while True:
-                        try:
-                            open_and_send_image(path, bot, tg_chat_id)
-                            break
-                        except telegram.error.NetworkError:
-                            time.sleep(10)
+            try_send(path, bot, tg_chat_id)
             time.sleep(period)
         random.shuffle(paths)
 

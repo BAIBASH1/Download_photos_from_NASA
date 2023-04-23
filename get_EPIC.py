@@ -8,12 +8,17 @@ from work_with_files import save_images
 from pathlib import Path
 
 
-def get_earth_photo_url(num_date, params):
+def get_response(params):
     response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
     )
     response.raise_for_status()
+    return response
+
+
+def get_earth_photo_url(num_date, params):
+    response = get_response(params)
     str_date = response.json()[num_date]['date']
     date = datetime.date.fromisoformat(str_date)
     response = requests.get(
@@ -28,11 +33,7 @@ def get_earth_photo_url(num_date, params):
 
 
 def get_by_date(date, params):
-    dates_response = requests.get(
-        'https://api.nasa.gov/EPIC/api/natural/all',
-        params=params
-    )
-    dates_response.raise_for_status()
+    dates_response = get_response(params)
     if "2015-06-12" < date:
         for num_date, element in enumerate(dates_response.json()):
             if element['date'] == date:
@@ -45,11 +46,7 @@ def get_by_date(date, params):
 
 
 def get_random_date(counts, params):
-    dates_response = requests.get(
-        'https://api.nasa.gov/EPIC/api/natural/all',
-        params=params
-    )
-    dates_response.raise_for_status()
+    dates_response = get_response(params)
     random_dates = random.sample(dates_response.json(), counts)
     return random_dates
 
