@@ -8,37 +8,42 @@ from work_with_files import save_images
 from pathlib import Path
 
 
-def get_response(params):
+def get_response_dates(params):
     response = requests.get(
         'https://api.nasa.gov/EPIC/api/natural/all',
         params=params
     )
     response.raise_for_status()
-    return response
+    response_images = response.json()
+    return response_images
 
 
-def get_earth_photo_url(num_date, params):
-    response = get_response(params)
-    str_date = response.json()[num_date]['date']
-    date = datetime.date.fromisoformat(str_date)
+def get_image_name(date, params):
     response = requests.get(
         f'https://api.nasa.gov/EPIC/api/natural/date/{date}',
         params=params
     )
     response.raise_for_status()
     image_name = response.json()[0]['image']
+    return image_name
+
+
+def get_earth_photo_url(num_date, params):
+    response_images = get_response_dates(params)
+    str_date = response_images[num_date]['date']
+    date = datetime.date.fromisoformat(str_date)
+    image_name = get_image_name(date, params)
     url_earth_photo = f'https://api.nasa.gov/EPIC/archive/natural/' \
                       f'{date.strftime("%Y/%m/%d")}/png/{image_name}.png'
     return url_earth_photo, date
 
 
-def get_by_date(date, params):
-    dates_response = get_response(params)
+def get_num_date(date, params):
+    response_dates = get_response_dates(params)
     if "2015-06-12" < date:
-        for num_date, element in enumerate(dates_response.json()):
+        for num_date, element in enumerate(response_dates):
             if element['date'] == date:
                 return num_date
-                break
         else:
             print("За эту дату нет фотографий")
     else:
@@ -46,8 +51,8 @@ def get_by_date(date, params):
 
 
 def get_random_date(counts, params):
-    dates_response = get_response(params)
-    random_dates = random.sample(dates_response.json(), counts)
+    response_dates = get_response_dates(params)
+    random_dates = random.sample(response_dates, counts)
     return random_dates
 
 
@@ -92,11 +97,11 @@ def main():
         for num in range(args.count):
             find_and_save_images(num, params)
     if args.date:
-        num_date = get_by_date(args.date, params)
+        num_date = get_num_date(args.date, params)
         find_and_save_images(num_date, params)
     if args.random_count:
         for random_date in get_random_date(args.random_count, params):
-            num_date = get_by_date(random_date['date'], params)
+            num_date = get_num_date(random_date['date'], params)
             find_and_save_images(num_date, params)
 
 

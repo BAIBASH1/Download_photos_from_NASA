@@ -16,15 +16,12 @@ def open_and_send_image(path, bot, tg_chat_id):
 
 
 def try_send(path, bot, tg_chat_id):
-    try:
-        open_and_send_image(path, bot, tg_chat_id)
-    except telegram.error.NetworkError:
-        while True:
-            try:
-                open_and_send_image(path, bot, tg_chat_id)
-                return
-            except telegram.error.NetworkError:
-                time.sleep(10)
+    while True:
+        try:
+            open_and_send_image(path, bot, tg_chat_id)
+            return
+        except telegram.error.NetworkError:
+            time.sleep(10)
 
 
 def main():

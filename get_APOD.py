@@ -7,26 +7,31 @@ from work_with_files import define_filetype
 from pathlib import Path
 
 
-def get_APOD(params, day=None):
+def get_response_images(params):
     url_day_photo = 'https://api.nasa.gov/planetary/apod'
     response = requests.get(
         url_day_photo,
         params=params
     )
     response.raise_for_status()
+    response_images = response.json()
+    return response_images
+
+
+def get_APOD(params, day=None):
+    response_images = get_response_images(params)
     os.makedirs('Photos_of_the_day', exist_ok=True)
-    response_dictionaries_in_list = response.json()
     if day:
-        response_dictionaries_in_list = [response_dictionaries_in_list]
-    for dictionary_in_list in response_dictionaries_in_list:
-        date = dictionary_in_list['date']
-        if dictionary_in_list['media_type'] == "image":
-            try:
-                url = dictionary_in_list['hdurl']
-            except KeyError:
-                url = dictionary_in_list['url']
-        else:
+        response_images = [response_images]
+    for response_image in response_images:
+        date = response_image['date']
+        if response_image['media_type'] != "image":
             print(f'За дату {date} нет изображения')
+        else:
+            try:
+                url = response_image['hdurl']
+            except KeyError:
+                url = response_image['url']
         filetype = define_filetype(url)
         save_images(
             url,
