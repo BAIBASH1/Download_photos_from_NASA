@@ -21,8 +21,8 @@ def get_urls_spacex_images_by_id(launch_id):
         if launch_inf['id'] == launch_id:
             image_urls = launch_inf["links"]["flickr"]["original"]
             date = launch_inf["date_local"]
-            break
-    return image_urls, date
+            return image_urls, date
+    return
 
 
 def get_urls_spacex_images_by_launch_num(launch_num):
@@ -68,7 +68,11 @@ def main():
     parser.add_argument("--id", help="укажите ID запуска")
     args = parser.parse_args()
     if args.id:
-        image_urls, date = get_urls_spacex_images_by_id(args.id)
+        try:
+            image_urls, date = get_urls_spacex_images_by_id(args.id)
+        except TypeError:
+            print('Некорректный id запуска, уточните по ссылке https://api.spacexdata.com/v5/launches')
+            return
         save_all_images(image_urls, date, args.id)
     else:
         last_id, launch_num = get_last_launch_id_with_images()

@@ -27,16 +27,17 @@ def get_APOD(params, day=None):
         date = response_image['date']
         if response_image['media_type'] != "image":
             print(f'За дату {date} нет изображения')
+
         else:
             try:
                 url = response_image['hdurl']
             except KeyError:
                 url = response_image['url']
-        filetype = define_filetype(url)
-        save_images(
-            url,
-            Path.cwd() / 'Photos_of_the_day' / f'image_for_{date}{filetype}'
-        )
+            filetype = define_filetype(url)
+            save_images(
+                url,
+                Path.cwd() / 'Photos_of_the_day' / f'image_for_{date}{filetype}'
+            )
 
 
 def main():
